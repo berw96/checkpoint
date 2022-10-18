@@ -1,9 +1,10 @@
-from os import system
-from platform import platform
-import qiskit
+
+
 
 def main():
-    print("Hello Qiskit\n")
+    """Driver function for program"""
+    print("Hello World\n")
+    
 
 main()
 
