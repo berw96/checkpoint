@@ -10,7 +10,7 @@ async def get_web_http(url = localhost):
     """Queries a webpage from a specified URL using HTTP.
     Returns localhost (127.0.0.1) by default."""
     webpage = requests.get(url)
-    print(webpage.status_code)
+    print(webpage.text)
 
 async def get_web_json_http(url = localhost):
     """Queries a webpage as a JSON object.
@@ -21,7 +21,7 @@ async def get_web_json_http(url = localhost):
 async def main():
     """Driver function."""
     print("loading...")
-    task1 = asyncio.create_task(get_web_json_http("https://youtube.com"))
+    task1 = asyncio.create_task(get_web_http("https://youtube.com"))
 
     try:
         await asyncio.wait_for(task1, timeout = http_timeout)
