@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup as bs
 import requests
 import json
+import asyncio
 
 def query_soup(url, jar = None):
     # Stores additional information pertaining to a HTTP request
@@ -9,6 +10,7 @@ def query_soup(url, jar = None):
         "update-insecure-requests" : "1"
     }
 
+    # Check for local cookie cache (jar)
     if jar:
         webpage = requests.get(url, cookies = jar, headers = http_headers)
     else:
@@ -18,12 +20,11 @@ def query_soup(url, jar = None):
     webpagedata = webpage.text
     soup = bs(webpagedata, "html.parser")
 
-    content = soup.find("img")
-    print(content)
+    content = soup.find_all("body")
+    for x in content:
+        print(x)
 
 
-print("Type a website to scrape...")
-url = "https://" + input()
-query_soup(url)
+query_soup("https://bbc.co.uk")
 
 
