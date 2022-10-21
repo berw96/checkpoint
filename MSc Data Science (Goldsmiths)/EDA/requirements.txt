@@ -1,0 +1,15 @@
+Mr E Walker
+PT MSc Data Science
+ID: 3368 6408
+
+IS71068A Data Programming (2022)
+CW1 - REQUIREMENTS
+
+Libraries:
++ bs4
++ pandas
++ numpy
++ requests
++ asyncio
++ csv
++ json

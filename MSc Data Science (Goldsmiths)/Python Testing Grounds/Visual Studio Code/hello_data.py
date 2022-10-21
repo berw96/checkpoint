@@ -4,10 +4,13 @@ from enum import Enum
 import json
 import csv
 import asyncio
+from bs4 import BeautifulSoup as bs
 import pandas as pd
 import numpy as np
 from matplotlib import pyplot as pp
 from typing import Final as const
+import requests as rq
+import re as regex
 
 def file_to_dict(fpath = "", dict = {}):
     """Opens a file from a specified path and, if it exists,
@@ -105,6 +108,32 @@ def file_to_df(fpath):
 def df_to_file(df, fpath):
     pass
 
+def html_to_df(url):
+    """A function for webscraping a provided URL and saving
+    the results to a Pandas dataframe."""
+    if(url != None):
+        try:
+            #html = pd.read_html(url)
+            html = rq.get(url)
+            soup = bs(html.text, "html.parser")
+            
+            #try:
+                #print("Valid URL detected: " + url)
+                #for table in html:
+                    #print(table)
+            #except:
+                #print("No tables detected in HTML.")
+            
+            try:
+                #print(soup.findAll("td", {"data-sort-value" : ""}))
+                trs = soup.find_all("tr")
+                for tr in trs:
+                    print(tr, end = "\n" * 2)
+            except:
+                print("Could not read soup for " + url)
+        except:
+            print("Could not read URL: " + url)
+
 def format_data(d):
     pass
 
@@ -119,7 +148,8 @@ def main():
     print("main()")
     #file_to_dict("../../Test Data/CSV/test.csv")
     #dict_to_file(dict = {"Name" : "David", "Age" : 22, "Sex" : "M"}, fpath = "../../Test Data/CSV/test.csv")
-    file_to_df("../../Test Data/CSV/test.csv")
+    #file_to_df("../../Test Data/CSV/test.csv")
+    html_to_df("https://en.wikipedia.org/wiki/History_of_Python")
 
 # run program
 main()
