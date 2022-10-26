@@ -6,10 +6,7 @@ IS71068A Data Programming (2022)
 CW1 - REQUIREMENTS
 
 Libraries:
-+ bs4
 + pandas
 + numpy
-+ requests
 + asyncio
 + csv
-+ json
