@@ -8,5 +8,3 @@ CW1 - REQUIREMENTS
 Libraries:
 + pandas
 + numpy
-+ asyncio
-+ csv
