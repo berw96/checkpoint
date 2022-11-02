@@ -1,17 +1,9 @@
 library(MASS)
 library(ISLR)
+library(car)
 
-#fix(Boston)
-names(Boston)
+lm.fit2 = lm(medv~lstat + I(lstat^2), data = Boston)
+summary(lm.fit2)
 
-lm.fit = lm(medv~lstat, data = Boston)
-
-
-confint(lm.fit)
-
-plot(lstat, medv)
-abline(lm.fit)
-
-predict(lm.fit, 
-        data.frame(lstat = c(5, 10, 15)), 
-        interval =  "prediction")
+anova(lm.fit, lm.fit2)
+plot(lm.fit2)
