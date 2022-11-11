@@ -51,7 +51,11 @@ def cleanse_df():
     return
 
 def encode_data():
-    """Uses encoders to format classical and Boolean values into 0s and 1s."""
+    """Uses encoders to format classical and Boolean values into 0s and 1s"""
+    pass
+
+def partition_train_test():
+    """Separates data used for training and testing models"""
     pass
 
 def main():
