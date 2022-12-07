@@ -15,10 +15,13 @@ numeric_data = data[,-9]
 # Engine 'displacement' is represented as 'chr' strings.
 numeric_data[,4] = as.integer(numeric_data[,4])
 
-# Interpret non-data as zeroes.
+# Calculate mean of horsepower excluding NA values.
+mean_hp = mean(numeric_data[,4], na.rm = TRUE)
+
+# Interpret non-data as mean of data in column.
 for(i in 1:length(numeric_data[,4])){
   if(is.na(numeric_data[i,4])){
-    numeric_data[i,4] = 0
+    numeric_data[i,4] = mean_hp
   }
 }
 
@@ -55,9 +58,10 @@ summary(linear_model)
 
 # Second iteration of linear model after backwards elimination is applied to
 # exclude statistically insignificant variables to enhance model accuracy.
-# Engine displacement is insignificant and thus excluded.
+# Weight and year are consistently significant and yield a high
+# adjusted R-squared statistic, implying high impact on response variable.
 linear_model = lm(
-  formula = mpg ~ cylinders + horsepower + weight + acceleration + year + origin,
+  formula = mpg ~ weight + year,
   data = numeric_data,
   subset = train
 )

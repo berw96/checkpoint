@@ -20,11 +20,11 @@ def query_soup(url, jar = None):
     webpagedata = webpage.text
     soup = bs(webpagedata, "html.parser")
 
-    content = soup.find_all("body")
+    content = soup.find_all('div')
     for x in content:
         print(x)
 
 
-query_soup("https://bbc.co.uk")
+query_soup("https://twitch.tv/xqc")
 
 
