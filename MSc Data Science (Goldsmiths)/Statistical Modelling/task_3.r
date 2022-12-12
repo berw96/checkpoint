@@ -28,8 +28,6 @@ min_max_norm <- function(x){
   return(x)
 }
 
-##############################################################################
-
 # Import dataset into a representative variable.
 # (Set as working directory first!)
 data = read.csv("datasets/Weekly.csv")
@@ -37,6 +35,9 @@ data = read.csv("datasets/Weekly.csv")
 summary(data)
 
 plot(data)
+
+##############################################################################
+# PREPROCESSING
 
 # Data encoding.
 # Run this for all data variables!
@@ -46,9 +47,14 @@ data$Direction = factor(
   labels = c(0,1)
 )
 
+# Normalize data. Values scaled to between 0 and 1 with relationship being
+# conserved, but at the expense of outlier visibility.
 for(i in 2:8){
   data[,i] = min_max_norm(data[,i])
 }
+
+##############################################################################
+# MODELLING 1
 
 set.seed(123)
 split = sample.split(data$Direction, SplitRatio = 0.75)
@@ -62,8 +68,6 @@ lr_model = glm(
 
 summary(lr_model)
 print(lr_model$fitted.values)
-
-
 
 train_actual_values = train$Direction
 
@@ -91,6 +95,7 @@ test_actual_values = test$Direction
 confusionMatrix(data = test_actual_values, reference = as.factor(predictions))
 
 ##############################################################################
+# MODELLING 2
 
 # Refine model using only data between 1990 and 2008 with Lag2 as the lone predictor.
 data2 = data
@@ -129,6 +134,7 @@ test_actual_values2 = test2$Direction
 confusionMatrix(data = test_actual_values2, reference = as.factor(predictions2))
 
 ##############################################################################
+# MODELLING 3
 
 # Observations between 2009 and 2010.
 data3 = data
@@ -169,6 +175,8 @@ test_actual_values3 = test3$Direction
 confusionMatrix(data = test_actual_values3, reference = as.factor(predictions3))
 
 ##############################################################################
+# MODELLING 4
+
 # Use KNN (K-Nearest Neighbors) for k = 1,3,5,7
 data_KNN = read.csv("datasets/Weekly.csv")
 data_KNN = subset(data_KNN, data_KNN$Year > 1990)
@@ -199,7 +207,74 @@ for(k in c(1,3,5,7)){
 }
 
 ##############################################################################
+# TRANSFORMATIONS - sqrt(x)
 
+data4 = data
 
+set.seed(123)
+split = sample.split(data4$Direction, SplitRatio = 0.75)
+train4 = subset(data4, split == TRUE)
+test4 = subset(data4, split == FALSE)
 
+lr_model4 = glm(
+  formula = Direction ~ sqrt(Lag2),
+  data = train4,
+  family = binomial
+)
+
+train_actual_values4 = train4$Direction
+
+lr_model4$fitted.values = round_fitted_values(lr_model4$fitted.values)
+
+predicted_values4 = lr_model4$fitted.values
+
+confusionMatrix(data = train_actual_values4, reference = as.factor(predicted_values4))
+
+probabilities4 = predict(
+  lr_model4,
+  type = 'response',
+  newdata = test4
+)
+
+predictions4 = ifelse(probabilities4 >= 0.5, 1, 0)
+
+test_actual_values4 = test4$Direction
+
+confusionMatrix(data = test_actual_values4, reference = as.factor(predictions4))
+
+##############################################################################
+# TRANSFORMATIONS - x**2
+
+data5 = data
+
+set.seed(123)
+split = sample.split(data5$Direction, SplitRatio = 0.75)
+train5 = subset(data5, split == TRUE)
+test5 = subset(data5, split == FALSE)
+
+lr_model5 = glm(
+  formula = Direction ~ Lag2**2,
+  data = train5,
+  family = binomial
+)
+
+train_actual_values5 = train5$Direction
+
+lr_model5$fitted.values = round_fitted_values(lr_model5$fitted.values)
+
+predicted_values5 = lr_model5$fitted.values
+
+confusionMatrix(data = train_actual_values5, reference = as.factor(predicted_values5))
+
+probabilities5 = predict(
+  lr_model5,
+  type = 'response',
+  newdata = test5
+)
+
+predictions5 = ifelse(probabilities5 >= 0.5, 1, 0)
+
+test_actual_values5 = test5$Direction
+
+confusionMatrix(data = test_actual_values5, reference = as.factor(predictions5))
 
