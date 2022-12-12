@@ -8,6 +8,7 @@
 library(caTools)
 #install.packages('caret')
 library(caret)
+library(class)
 
 # Round fitted values for a given regressional model.
 round_fitted_values <- function(x){
@@ -30,6 +31,7 @@ min_max_norm <- function(x){
 ##############################################################################
 
 # Import dataset into a representative variable.
+# (Set as working directory first!)
 data = read.csv("datasets/Weekly.csv")
 
 summary(data)
@@ -183,12 +185,21 @@ split = sample.split(data_KNN$Direction, SplitRatio = 0.75)
 train_KNN = subset(data_KNN, split == TRUE)
 test_KNN = subset(data_KNN, split == FALSE)
 
-predictions_KNN = knn(
-  train = train_KNN,
-  test = test_KNN,
-  train_KNN$Direction,
-  k = 7
-)
+for(k in c(1,3,5,7)){
+  predictions_KNN = knn(
+    train = train_KNN,
+    test = test_KNN,
+    train_KNN$Direction,
+    k = k
+  )
+  
+  cm = table(test_KNN$Direction, predictions_KNN)
+  print(paste("K =", k))
+  print(confusionMatrix(data = test_KNN$Direction, reference =  predictions_KNN))
+}
 
-cm = table(test_KNN$Direction, predictions_KNN)
-confusionMatrix(data = test_KNN$Direction, reference =  predictions_KNN)
+##############################################################################
+
+
+
+

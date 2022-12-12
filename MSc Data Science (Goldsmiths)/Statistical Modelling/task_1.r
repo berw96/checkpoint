@@ -3,7 +3,7 @@
 # Code by Elliot Walker (SN: 3368 6408)
 # Goldsmiths, University of London
 
-# Import dataset into a representative variable.
+# Import Auto.csv dataset into a representative variable.
 # (Set as working directory first!)
 data = read.csv("datasets/Auto.csv")
 
@@ -92,8 +92,6 @@ summary(numeric_data)
 
 #install.packages('corrplot')
 library(corrplot)
-#install.packages('ggplot2')
-library(ggplot2)
 
 # Produce scatterplot matrix for all variables in Auto dataset.
 pairs(numeric_data)
@@ -107,11 +105,11 @@ corrplot(cor(numeric_data))
 # Univariate, individual scatterplots for mpg.
 y = numeric_data$mpg
 
-plot(x = numeric_data$cylinders, y)
-plot(x = numeric_data$displacement, y)
-plot(x = numeric_data$horsepower, y)
-plot(x = numeric_data$weight, y)
-plot(x = numeric_data$year, y)
+plot(x = numeric_data$cylinders, y, xlab = "Cylinders", ylab = "Miles Per Gallon (MPG)")
+plot(x = numeric_data$displacement, y, xlab = "Displacement", ylab = "Miles Per Gallon (MPG)")
+plot(x = numeric_data$horsepower, y, xlab = "Horsepower", ylab = "Miles Per Gallon (MPG)")
+plot(x = numeric_data$weight, y, xlab = "Weight", ylab = "Miles Per Gallon (MPG)")
+plot(x = numeric_data$year, y, xlab = "Year", ylab = "Miles Per Gallon (MPG)")
 
 ##############################################################################
 # ANALYSIS 1
@@ -152,11 +150,11 @@ prediction1 = predict(
 # Plot model's prediction for mpg against actual value.
 y = prediction1
 
-plot(x = numeric_data$cylinders, y, xlab = "Cylinders", ylab = "Prediction A (MPG)")
-plot(x = numeric_data$displacement, y, xlab = "Displacement", ylab = "Prediction A (MPG)")
-plot(x = numeric_data$horsepower, y, xlab = "Horsepower", ylab = "Prediction A (MPG)")
-plot(x = numeric_data$weight, y, xlab = "Weight", ylab = "Prediction A (MPG)")
-plot(x = numeric_data$year, y, xlab = "Year", ylab = "Prediction A (MPG)")
+plot(x = cylinders, y, xlab = "Cylinders", ylab = "Prediction A (MPG)")
+plot(x = displacement, y, xlab = "Displacement", ylab = "Prediction A (MPG)")
+plot(x = horsepower, y, xlab = "Horsepower", ylab = "Prediction A (MPG)")
+plot(x = weight, y, xlab = "Weight", ylab = "Prediction A (MPG)")
+plot(x = year, y, xlab = "Year", ylab = "Prediction A (MPG)")
 
 ##############################################################################
 # ANALYSIS 2
@@ -183,9 +181,14 @@ prediction2 = predict(
 ##############################################################################
 # VISUALIZATION 3
 
-plot(x = prediction2, y = numeric_data$mpg)
+# Plot model's prediction for mpg against actual value.
+y = prediction2
 
-abline(a = 0, b = 1)
+plot(x = cylinders, y, xlab = "Cylinders", ylab = "Prediction B (MPG)")
+plot(x = displacement, y, xlab = "Displacement", ylab = "Prediction B (MPG)")
+plot(x = horsepower, y, xlab = "Horsepower", ylab = "Prediction B (MPG)")
+plot(x = weight, y, xlab = "Weight", ylab = "Prediction B (MPG)")
+plot(x = year, y, xlab = "Year", ylab = "Prediction B (MPG)")
 
 
 
