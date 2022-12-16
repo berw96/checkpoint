@@ -5,6 +5,8 @@ import unittest
 # Expected != Actual ---> FAIL.
 
 # Create a test class which inherits from unittest.TestCase
+# All functions contained within this subclass will be run
+# as part of the unit test.
 class Test(unittest.TestCase):
     def test_basic(self):
         self.assertTrue(True)
