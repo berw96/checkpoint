@@ -3,6 +3,9 @@
 # Code by Elliot Walker (SN: 3368 6408)
 # Goldsmiths, University of London
 
+#install.packages('Nondata')
+library(Nondata)
+
 # Import Auto.csv dataset into a representative variable.
 # (Set as working directory first!)
 data = read.csv("datasets/Auto.csv")
@@ -10,7 +13,7 @@ data = read.csv("datasets/Auto.csv")
 scan_for_copies <- function(cops){
   # scan the dataset for copies based on cylinders, model and year.
   # Categorical copies skew statistical significance.
-  
+
   # Search through all observations in dataset.
   for(i in 1:length(data$name)){
     # Starting from the current observation 'i'
@@ -48,9 +51,9 @@ copies[,4] = as.integer(copies[,4])
 # Calculate the arithmetic mean of the duplicates'.
 # First initialize an empty dataframe containing all fields.
 mean_of_copies = data.frame(
-  mpg = c(0), 
-  cylinders = c(0), 
-  displacement = c(0), 
+  mpg = c(0),
+  cylinders = c(0),
+  displacement = c(0),
   horsepower = c(0),
   weight = c(0),
   acceleration = c(0),
@@ -78,14 +81,14 @@ numeric_data[,4] = as.integer(numeric_data[,4])
 mean_hp = mean(numeric_data[,4], na.rm = TRUE)
 
 # Interpret non-data as mean of data in column.
-for(i in 1:length(numeric_data[,4])){
-  if(is.na(numeric_data[i,4])){
-    numeric_data[i,4] = mean_hp
-  }
-}
+numeric_data = filter_nondata(numeric_data)
 
 # Print summary of numeric data.
 summary(numeric_data)
+
+# Investigate data for outliers.
+boxplot.stats(numeric_data$horsepower)$out
+boxplot.stats(numeric_data$acceleration)$out
 
 ##############################################################################
 # VISUALIZATION 1
@@ -111,6 +114,9 @@ plot(x = numeric_data$horsepower, y, xlab = "Horsepower", ylab = "Miles Per Gall
 plot(x = numeric_data$weight, y, xlab = "Weight", ylab = "Miles Per Gallon (MPG)")
 plot(x = numeric_data$year, y, xlab = "Year", ylab = "Miles Per Gallon (MPG)")
 
+# Create boxplot for fields exhibiting outliers.
+boxplot(numeric_data[c(4,6)])
+
 ##############################################################################
 # ANALYSIS 1
 
@@ -130,7 +136,7 @@ test = unlist(subset(numeric_data, split == FALSE))
 # Create a multivariate linear regression model using
 # all predictor variables, denoted with '.'
 linear_model1 = lm(
-  formula = mpg ~ .,
+  formula = mpg ~ cylinders + displacement + horsepower + weight + acceleration + year + origin,
   data = numeric_data,
   subset = train
   )
@@ -146,15 +152,20 @@ prediction1 = predict(
 
 ##############################################################################
 # VISUALIZATION 2
+library(car)
 
-# Plot model's prediction for mpg against actual value.
+# Plot model's prediction for mpg against predictors.
 y = prediction1
 
-plot(x = cylinders, y, xlab = "Cylinders", ylab = "Prediction A (MPG)")
-plot(x = displacement, y, xlab = "Displacement", ylab = "Prediction A (MPG)")
-plot(x = horsepower, y, xlab = "Horsepower", ylab = "Prediction A (MPG)")
-plot(x = weight, y, xlab = "Weight", ylab = "Prediction A (MPG)")
-plot(x = year, y, xlab = "Year", ylab = "Prediction A (MPG)")
+scatterplot(x = mpg, y, xlab = "Actual (MPG)", ylab = "Prediction A (MPG)")
+scatterplot(x = cylinders, y, xlab = "Cylinders", ylab = "Prediction A (MPG)")
+scatterplot(x = displacement, y, xlab = "Displacement", ylab = "Prediction A (MPG)")
+scatterplot(x = horsepower, y, xlab = "Horsepower", ylab = "Prediction A (MPG)")
+scatterplot(x = weight, y, xlab = "Weight", ylab = "Prediction A (MPG)")
+scatterplot(x = year, y, xlab = "Year", ylab = "Prediction A (MPG)")
+
+outlierTest(linear_model1, cutoff = 0.05)
+leveragePlots(linear_model1, main = "Leverage Plots (Model 1)")
 
 ##############################################################################
 # ANALYSIS 2
@@ -174,25 +185,22 @@ summary(linear_model2)
 # Now that we have trained our model using the training data, we can now
 # utilize it to make predictions for the response/output variable 'mpg'.
 prediction2 = predict(
-  object = linear_model2, 
+  object = linear_model2,
   newdata = as.list(test)
   )
 
 ##############################################################################
 # VISUALIZATION 3
 
-# Plot model's prediction for mpg against actual value.
+# Plot model's prediction for mpg against predictors.
 y = prediction2
 
-plot(x = cylinders, y, xlab = "Cylinders", ylab = "Prediction B (MPG)")
-plot(x = displacement, y, xlab = "Displacement", ylab = "Prediction B (MPG)")
-plot(x = horsepower, y, xlab = "Horsepower", ylab = "Prediction B (MPG)")
-plot(x = weight, y, xlab = "Weight", ylab = "Prediction B (MPG)")
-plot(x = year, y, xlab = "Year", ylab = "Prediction B (MPG)")
+scatterplot(x = mpg, y, xlab = "Actual (MPG)", ylab = "Prediction B (MPG)")
+scatterplot(x = cylinders, y, xlab = "Cylinders", ylab = "Prediction B (MPG)")
+scatterplot(x = displacement, y, xlab = "Displacement", ylab = "Prediction B (MPG)")
+scatterplot(x = horsepower, y, xlab = "Horsepower", ylab = "Prediction B (MPG)")
+scatterplot(x = weight, y, xlab = "Weight", ylab = "Prediction B (MPG)")
+scatterplot(x = year, y, xlab = "Year", ylab = "Prediction B (MPG)")
 
-
-
-
-
-
-
+outlierTest(linear_model2, cutoff = 0.05)
+leveragePlots(linear_model2, main = "Leverage Plots (Model 2)")

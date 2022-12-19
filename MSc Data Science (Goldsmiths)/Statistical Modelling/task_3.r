@@ -9,6 +9,8 @@ library(caTools)
 #install.packages('caret')
 library(caret)
 library(class)
+#install.packages('Nondata')
+library(Nondata)
 
 # Round fitted values for a given regressional model.
 round_fitted_values <- function(x){
@@ -34,8 +36,6 @@ data = read.csv("datasets/Weekly.csv")
 
 summary(data)
 
-plot(data)
-
 ##############################################################################
 # PREPROCESSING
 
@@ -53,6 +53,18 @@ for(i in 2:8){
   data[,i] = min_max_norm(data[,i])
 }
 
+# Scan for nondata.
+data = filter_nondata(data)
+
+##############################################################################
+# VISUALIZATION 1
+#install.packages('corrplot')
+library(corrplot)
+
+plot(data)
+
+# corrplot(cor(data))
+
 ##############################################################################
 # MODELLING 1
 
@@ -62,7 +74,7 @@ train = subset(data, split == TRUE)
 test = subset(data, split == FALSE)
 
 lr_model = glm(
-  formula = Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume, 
+  formula = Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume,
   data = train,
   family = binomial)
 
@@ -81,8 +93,8 @@ confusionMatrix(data = train_actual_values, reference = as.factor(predicted_valu
 
 # Apply test set to generate predictions.
 probabilities = predict(
-  lr_model, 
-  type = 'response', 
+  lr_model,
+  type = 'response',
   newdata = test
   )
 
@@ -122,8 +134,8 @@ predicted_values2 = lr_model2$fitted.values
 confusionMatrix(data = train_actual_values2, reference = as.factor(predicted_values2))
 
 probabilities2 = predict(
-  lr_model2, 
-  type = 'response', 
+  lr_model2,
+  type = 'response',
   newdata = test2
 )
 
@@ -152,8 +164,6 @@ lr_model3 = glm(
   family = binomial
 )
 
-plot(data3$Year, data3$Volume)
-
 train_actual_values3 = train3$Direction
 
 lr_model3$fitted.values = round_fitted_values(lr_model3$fitted.values)
@@ -163,8 +173,8 @@ predicted_values3 = lr_model3$fitted.values
 confusionMatrix(data = train_actual_values3, reference = as.factor(predicted_values3))
 
 probabilities3 = predict(
-  lr_model3, 
-  type = 'response', 
+  lr_model3,
+  type = 'response',
   newdata = test3
 )
 
@@ -177,33 +187,103 @@ confusionMatrix(data = test_actual_values3, reference = as.factor(predictions3))
 ##############################################################################
 # MODELLING 4
 
-# Use KNN (K-Nearest Neighbors) for k = 1,3,5,7
-data_KNN = read.csv("datasets/Weekly.csv")
-data_KNN = subset(data_KNN, data_KNN$Year > 1990)
-data_KNN = subset(data_KNN, data_KNN$Year <= 2008)
+#install.packages('plotly')
+library(plotly)
 
-data_KNN$Direction = factor(
-  data_KNN$Direction,
+# Use KNN (K-Nearest Neighbors) for k = 1,3,5,7
+data_KNN1 = read.csv("datasets/Weekly.csv")
+data_KNN1 = subset(data_KNN1, data_KNN1$Year > 1990)
+data_KNN1 = subset(data_KNN1, data_KNN1$Year <= 2008)
+
+data_KNN1$Direction = factor(
+  data_KNN1$Direction,
   levels = c("Down", "Up"),
   labels = c(0,1)
 )
 
+# KNN using all predictors.
 set.seed(123)
-split = sample.split(data_KNN$Direction, SplitRatio = 0.75)
-train_KNN = subset(data_KNN, split == TRUE)
-test_KNN = subset(data_KNN, split == FALSE)
+split = sample.split(data_KNN1$Direction, SplitRatio = 0.75)
+train_KNN1 = subset(data_KNN1, split == TRUE)
+test_KNN1 = subset(data_KNN1, split == FALSE)
 
 for(k in c(1,3,5,7)){
-  predictions_KNN = knn(
-    train = train_KNN,
-    test = test_KNN,
-    train_KNN$Direction,
+  predictions_KNN1 = knn(
+    train = train_KNN1,
+    test = test_KNN1,
+    as.data.frame(train_KNN1)$Direction,
     k = k
   )
-  
-  cm = table(test_KNN$Direction, predictions_KNN)
+
+  cm = table(test_KNN1$Direction, predictions_KNN1)
   print(paste("K =", k))
-  print(confusionMatrix(data = test_KNN$Direction, reference =  predictions_KNN))
+  print(confusionMatrix(data = test_KNN1$Direction, reference =  predictions_KNN1))
+}
+
+##############################################################################
+# MODELLING 5
+
+# Use KNN (K-Nearest Neighbors) for k = 1,3,5,7
+data_KNN2 = read.csv("datasets/Weekly.csv")
+data_KNN2 = subset(data_KNN2, data_KNN2$Year > 1990)
+data_KNN2 = subset(data_KNN2, data_KNN2$Year <= 2008)
+
+data_KNN2$Direction = factor(
+  data_KNN2$Direction,
+  levels = c("Down", "Up"),
+  labels = c(0,1)
+)
+
+# KNN using Lag1 and Lag2 predictors.
+set.seed(123)
+split = sample.split(data_KNN2$Direction, SplitRatio = 0.75)
+train_KNN2 = subset(data_KNN2, split == TRUE, select = c(2,3,9))
+test_KNN2 = subset(data_KNN2, split == FALSE, select = c(2,3,9))
+
+for(k in c(1,3,5,7)){
+  predictions_KNN2 = knn(
+    train = train_KNN2,
+    test = test_KNN2,
+    as.data.frame(train_KNN2)$Direction,
+    k = k
+  )
+
+  cm = table(test_KNN2$Direction, predictions_KNN2)
+  print(paste("K =", k))
+  print(confusionMatrix(data = test_KNN2$Direction, reference =  predictions_KNN2))
+}
+
+##############################################################################
+# MODELLING 6
+
+# Use KNN (K-Nearest Neighbors) for k = 1,3,5,7
+data_KNN3 = read.csv("datasets/Weekly.csv")
+data_KNN3 = subset(data_KNN3, data_KNN3$Year > 1990)
+data_KNN3 = subset(data_KNN3, data_KNN3$Year <= 2008)
+
+data_KNN3$Direction = factor(
+  data_KNN3$Direction,
+  levels = c("Down", "Up"),
+  labels = c(0,1)
+)
+
+# KNN using only Lag2 predictor.
+set.seed(123)
+split = sample.split(data_KNN3$Direction, SplitRatio = 0.75)
+train_KNN3 = subset(data_KNN3, split == TRUE, select = c(2,9))
+test_KNN3 = subset(data_KNN3, split == FALSE, select = c(2,9))
+
+for(k in c(1,3,5,7)){
+  predictions_KNN3 = knn(
+    train = train_KNN3,
+    test = test_KNN3,
+    as.data.frame(train_KNN3)$Direction,
+    k = k
+  )
+
+  cm = table(test_KNN3$Direction, predictions_KNN3)
+  print(paste("K =", k))
+  print(confusionMatrix(data = test_KNN3$Direction, reference =  predictions_KNN3))
 }
 
 ##############################################################################
