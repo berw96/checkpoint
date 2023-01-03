@@ -16,6 +16,9 @@ _SUN_ADDRESS            = "thesun.co.uk/"
 _DAILY_MAIL_ADDRESS     = "dailymail.co.uk/"
 _TIMES_ADDRESS          = "thetimes.co.uk/"
 
+# def scan_for_articles(url, topic):
+#     pass
+
 def query_soup(url, jar = None):
     # Stores additional information pertaining to a HTTP request
     # we would like to invoke for a webpage's HTML content.
@@ -65,28 +68,55 @@ def query_soup(url, jar = None):
         # the URL to incorporate the date.
         current_day = 0
         for j in range(1, days_of_the_month + 1):
-            # If we are on the first day, don't iterate just yet.
+            # If we are on the first day, don't iterate URL just yet.
             if(i < 10 and j > 1 and j < 10):
-                url = url.replace("2022-0" + str(i) + "-0" + str(j-1),
-                                  "2022-0" + str(i) + "-0" + str(j))
+                # Format the URL based on which website it is from.
+                # The Independent and The Daily Mail both share the same date
+                # format with the exception of delimiting dashes '-'.
+                if(url.__contains__(_INDEPENDENT_ADDRESS)):
+                    url = url.replace("2022-0" + str(i) + "-0" + str(j-1),
+                                      "2022-0" + str(i) + "-0" + str(j))
+                elif(url.__contains__(_DAILY_MAIL_ADDRESS)):
+                    url = url.replace("20220" + str(i) + "0" + str(j-1),
+                                      "20220" + str(i) + "0" + str(j))
             elif(i >= 10 and j > 1 and j < 10):
-                url = url.replace("2022-" + str(i) + "-0" + str(j-1),
-                                  "2022-" + str(i) + "-0" + str(j))
+                if(url.__contains__(_INDEPENDENT_ADDRESS)):
+                    url = url.replace("2022-" + str(i) + "-0" + str(j-1),
+                                      "2022-" + str(i) + "-0" + str(j))
+                elif(url.__contains__(_DAILY_MAIL_ADDRESS)):
+                    url = url.replace("2022" + str(i) + "0" + str(j-1),
+                                      "2022" + str(i) + "0" + str(j))
             # Once the count for days reaches double digits, we ammend the
             # '0' so that it becomes numeric.
             elif(i < 10 and j == 10):
-                url = url.replace("2022-0" + str(i) + "-0" + str(j-1),
-                                  "2022-0" + str(i) + "-" + str(j))
+                if(url.__contains__(_INDEPENDENT_ADDRESS)):
+                    url = url.replace("2022-0" + str(i) + "-0" + str(j-1),
+                                      "2022-0" + str(i) + "-" + str(j))
+                elif(url.__contains__(_DAILY_MAIL_ADDRESS)):
+                    url = url.replace("20220" + str(i) + "0" + str(j-1),
+                                      "20220" + str(i) + "" + str(j))    
             elif(i >= 10 and j == 10):
-                url = url.replace("2022-" + str(i) + "-0" + str(j-1),
-                                  "2022-" + str(i) + "-" + str(j))
+                if(url.__contains__(_INDEPENDENT_ADDRESS)):
+                    url = url.replace("2022-" + str(i) + "-0" + str(j-1),
+                                      "2022-" + str(i) + "-" + str(j))
+                elif(url.__contains__(_DAILY_MAIL_ADDRESS)):
+                    url = url.replace("2022" + str(i) + "0" + str(j-1),
+                                      "2022" + str(i) + "" + str(j))
             # Once the day exceeds 10, we use the new format to iterate.
             elif(i < 10 and j > 10):
-                url = url.replace("2022-0" + str(i) + "-" + str(j-1),
-                                  "2022-0" + str(i) + "-" + str(j))
+                if(url.__contains__(_INDEPENDENT_ADDRESS)):
+                    url = url.replace("2022-0" + str(i) + "-" + str(j-1),
+                                      "2022-0" + str(i) + "-" + str(j))
+                elif(url.__contains__(_DAILY_MAIL_ADDRESS)):
+                    url = url.replace("20220" + str(i) + "" + str(j-1),
+                                      "20220" + str(i) + "" + str(j))
             elif(i >= 10 and j > 10):
-                url = url.replace("2022-" + str(i) + "-" + str(j-1),
-                                  "2022-" + str(i) + "-" + str(j))
+                if(url.__contains__(_INDEPENDENT_ADDRESS)):
+                    url = url.replace("2022-" + str(i) + "-" + str(j-1),
+                                      "2022-" + str(i) + "-" + str(j))
+                elif(url.__contains__(_DAILY_MAIL_ADDRESS)):
+                    url = url.replace("2022" + str(i) + "" + str(j-1),
+                                      "2022" + str(i) + "" + str(j))
             
             current_day = j
             
@@ -107,14 +137,14 @@ def query_soup(url, jar = None):
             # Find all occurances of an <a> tag.
             # These include 'href' attributes for article links.
             content = soup.find_all('a')
-            for x in content:
+            for a in content:
                 # Cast soup content to a string.
                 # Check if the string contains any mentions of Russia.
-                if(str(x).__contains__("Russia")):
+                if(str(a).__contains__("Russia")):
                     # Query the 'href' link associated with it.
-                    print(x['href'])
+                    print(a['href'])
                     # Append article to list.
-                    articles.append(x['href'])
+                    articles.append(a['href'])
                 
         # Iterate month in URL and reset day to 1.
         # current_day stores the last scanned day so the .replace()
@@ -122,21 +152,30 @@ def query_soup(url, jar = None):
         # on the next iteration for the month.
         if(current_day >= days_of_the_month):
             if(i < 9):
-                url = url.replace("2022-0" + str(i) + "-" + str(current_day),
-                            "2022-0" + str(i+1) + "-01")
+                if(url.__contains__(_INDEPENDENT_ADDRESS)):
+                    url = url.replace("2022-0" + str(i) + "-" + str(current_day),
+                                      "2022-0" + str(i+1) + "-01")
+                elif(url.__contains__(_DAILY_MAIL_ADDRESS)):
+                    url = url.replace("20220" + str(i) + "" + str(current_day),
+                                      "20220" + str(i+1) + "01")    
             elif(i == 9):
-                url = url.replace("2022-0" + str(i) + "-" + str(current_day),
-                            "2022-" + str(i+1) + "-01")
+                if(url.__contains__(_INDEPENDENT_ADDRESS)):
+                    url = url.replace("2022-0" + str(i) + "-" + str(current_day),
+                                      "2022-" + str(i+1) + "-01")
+                elif(url.__contains__(_DAILY_MAIL_ADDRESS)):
+                    url = url.replace("20220" + str(i) + "" + str(current_day),
+                                      "2022" + str(i+1) + "01")
             elif(i >= 10):
-                url = url.replace("2022-" + str(i) + "-" + str(current_day),
-                            "2022-" + str(i+1) + "-01")
+                if(url.__contains__(_INDEPENDENT_ADDRESS)):
+                    url = url.replace("2022-" + str(i) + "-" + str(current_day),
+                                      "2022-" + str(i+1) + "-01")
+                if(url.__contains__(_DAILY_MAIL_ADDRESS)):
+                    url = url.replace("2022" + str(i) + "" + str(current_day),
+                                      "2022" + str(i+1) + "01")
         
     print("Articles on Russia found: %d" % len(articles))
                 
 
-query_soup("https://" + _INDEPENDENT_URL)
+query_soup("https://" + _DAILY_MAIL_URL)
 
-
-
-                
-            
+#scan_for_articles("https://" + _INDEPENDENT_URL, "Russia")
