@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup as bs
 import requests
 import regex as re
+import sys
 
 # ARCHIVE URLs, contain the first page of each archive.
 _INDEPENDENT_URL    = "independent.co.uk/archive/2022-01-01"
@@ -126,8 +127,13 @@ def query_soup(url, jar = None):
                 content = soup.find_all('a')
                 for a in content:
                     # Cast soup content to a string.
-                    # Check if the string contains any mentions of Russia.
-                    if(str(a).__contains__("Russia")):
+                    # Check if the article contains any mentions of Russia or Ukraine, or their respective leaders.
+                    if(
+                        str(a).__contains__("Russia")   or 
+                        str(a).__contains__("Ukraine")  or
+                        str(a).__contains__("Putin")    or
+                        str(a).__contains__("Zelensky")
+                        ):
                         # Query the 'href' link associated with it.
                         print(a['href'])
                         # Append article to dictionary.
@@ -165,7 +171,5 @@ def query_soup(url, jar = None):
                         url = url.replace("2022" + str(i) + "" + str(current_day),
                                           "2022" + str(i+1) + "01")
 
-    
-
-query_soup("https://" + _INDEPENDENT_URL)
+#query_soup("https://" + _INDEPENDENT_URL)
 query_soup("https://" + _DAILY_MAIL_URL)
